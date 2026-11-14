@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+# Ayudante del laboratorio de redes. Uso: lab <orden> [nodo] [args]
+set -uo pipefail
+LAB_DIR="$(cat /etc/asi-redes/lab_dir 2>/dev/null || echo /vagrant)"
+TOPO="$LAB_DIR/topologia.clab.yml"
+PFX="clab-asi"
+
+uso() {
+cat <<TXT
+Uso: lab <orden>
+
+  up                 Despliega la topología (cableada y sin configurar)
+  down               Destruye la topología y borra todo lo configurado
+  reset              down + up (vuelves al estado inicial)
+  status             Muestra los nodos y su estado
+  sh <nodo>          Abre una shell en un nodo          (ej: lab sh gwa1)
+  vtysh <nodo>       Abre la consola de FRR en un nodo  (ej: lab vtysh gwa1)
+  x <nodo> <cmd...>  Ejecuta un comando en un nodo      (ej: lab x clia ip -br a)
+  cap <nodo> <if> [filtro]   tcpdump en una interfaz    (ej: lab cap gwa1 eth1 icmp)
+  save <carpeta>     Guarda la configuración (ip, bridge, nft, frr, wg) de todos los nodos
+
+Nodos: gwa1 gwa2 swa srva clia dmza gwb hostb wan
+TXT
+}
+
+cmd="${1:-}"; shift || true
+case "$cmd" in
+  up)     sudo containerlab deploy -t "$TOPO" --reconfigure ;;
+  down)   sudo containerlab destroy -t "$TOPO" --cleanup ;;
+  reset)  sudo containerlab destroy -t "$TOPO" --cleanup; sudo containerlab deploy -t "$TOPO" ;;
+  status) sudo containerlab inspect -t "$TOPO" ;;
+  sh)     docker exec -it "$PFX-${1:?falta el nodo}" bash ;;
+  vtysh)  docker exec -it "$PFX-${1:?falta el nodo}" vtysh ;;
+  x)      n="${1:?falta el nodo}"; shift; docker exec -it "$PFX-$n" "$@" ;;
+  cap)    n="${1:?falta el nodo}"; i="${2:?falta la interfaz}"; shift 2
+          docker exec -it "$PFX-$n" tcpdump -ni "$i" "$@" ;;
+  save)   out="${1:?falta la carpeta}"; mkdir -p "$out"
+          for n in gwa1 gwa2 swa srva clia dmza gwb hostb wan; do
+            {
+              echo "### ip addr";    docker exec "$PFX-$n" ip -br addr
+              echo "### ip route";   docker exec "$PFX-$n" ip route
+              echo "### bridge vlan"; docker exec "$PFX-$n" bridge vlan show 2>/dev/null
+              echo "### nft";        docker exec "$PFX-$n" nft list ruleset 2>/dev/null
+              echo "### wg";         docker exec "$PFX-$n" wg show 2>/dev/null
+              echo "### frr";        docker exec "$PFX-$n" vtysh -c 'show running-config' 2>/dev/null
+            } > "$out/$n.txt"
+          done
+          echo "Guardado en $out" ;;
+  *)      uso ;;
+esac

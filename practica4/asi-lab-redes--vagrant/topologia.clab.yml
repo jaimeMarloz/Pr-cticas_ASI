@@ -1,0 +1,95 @@
+# Topología del laboratorio de redes. Todo está cableado, nada está configurado.
+# Interfaz eth0 de cada nodo = red de gestión de Docker (no usar en la práctica).
+name: asi
+
+mgmt:
+  network: asi-mgmt
+  ipv4-subnet: 172.31.255.0/24
+
+topology:
+  defaults:
+    kind: linux
+    image: asi-net:1.0
+    cap-add:
+      - NET_ADMIN
+      - NET_RAW
+      - NET_BROADCAST
+      - SYS_ADMIN
+
+  nodes:
+    # ---------- Sede A ----------
+    gwa1:
+      sysctls:
+        net.ipv4.ip_forward: "1"
+      exec:
+        - sh -c "ip route del default || true"
+    gwa2:
+      sysctls:
+        net.ipv4.ip_forward: "1"
+      exec:
+        - sh -c "ip route del default || true"
+    swa:
+      # Conmutador: bridge creado con los 5 puertos, SIN filtrado de VLAN
+      exec:
+        - sh -c "ip route del default || true"
+        - ip link add br0 type bridge
+        - ip link set eth1 master br0
+        - ip link set eth1 up
+        - ip link set eth2 master br0
+        - ip link set eth2 up
+        - ip link set eth3 master br0
+        - ip link set eth3 up
+        - ip link set eth4 master br0
+        - ip link set eth4 up
+        - ip link set eth5 master br0
+        - ip link set eth5 up
+        - ip link set br0 up
+    srva:
+      exec:
+        - sh -c "ip route del default || true"
+    clia:
+      exec:
+        - sh -c "ip route del default || true"
+    dmza:
+      exec:
+        - sh -c "ip route del default || true"
+    # ---------- Sede B ----------
+    gwb:
+      sysctls:
+        net.ipv4.ip_forward: "1"
+      exec:
+        - sh -c "ip route del default || true"
+    hostb:
+      exec:
+        - sh -c "ip route del default || true"
+    # ---------- "Internet" ----------
+    wan:
+      # Segmento WAN 198.51.100.0/24 (.254 = este nodo) y un servidor web público simulado
+      exec:
+        - sh -c "ip route del default || true"
+        - ip link add br0 type bridge
+        - ip link set eth1 master br0
+        - ip link set eth1 up
+        - ip link set eth2 master br0
+        - ip link set eth2 up
+        - ip link set eth3 master br0
+        - ip link set eth3 up
+        - ip addr add 198.51.100.254/24 dev br0
+        - ip link set br0 up
+        - sh -c "mkdir -p /www && echo 'Internet simulada' > /www/index.html"
+        - sh -c "httpd -p 80 -h /www"
+
+  links:
+    # WAN
+    - endpoints: ["gwa1:eth1", "wan:eth1"]
+    - endpoints: ["gwa2:eth1", "wan:eth2"]
+    - endpoints: ["gwb:eth1",  "wan:eth3"]
+    # Sede A: pasarelas al conmutador (troncales)
+    - endpoints: ["gwa1:eth2", "swa:eth1"]
+    - endpoints: ["gwa2:eth2", "swa:eth2"]
+    # Sede A: equipos finales (acceso)
+    - endpoints: ["srva:eth1", "swa:eth3"]
+    - endpoints: ["clia:eth1", "swa:eth4"]
+    - endpoints: ["dmza:eth1", "swa:eth5"]
+    # Sede B
+    - endpoints: ["gwb:eth2", "hostb:eth1"]
