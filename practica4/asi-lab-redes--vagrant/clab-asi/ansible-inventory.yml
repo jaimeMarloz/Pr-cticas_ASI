@@ -8,17 +8,17 @@ all:
     linux:
       hosts:
         clab-asi-clia:
-          ansible_host: 172.31.255.6
-        clab-asi-dmza:
-          ansible_host: 172.31.255.7
-        clab-asi-gwa1:
-          ansible_host: 172.31.255.9
-        clab-asi-gwa2:
-          ansible_host: 172.31.255.10
-        clab-asi-gwb:
           ansible_host: 172.31.255.2
-        clab-asi-hostb:
+        clab-asi-dmza:
+          ansible_host: 172.31.255.6
+        clab-asi-gwa1:
+          ansible_host: 172.31.255.7
+        clab-asi-gwa2:
           ansible_host: 172.31.255.8
+        clab-asi-gwb:
+          ansible_host: 172.31.255.9
+        clab-asi-hostb:
+          ansible_host: 172.31.255.10
         clab-asi-srva:
           ansible_host: 172.31.255.3
         clab-asi-swa:

@@ -1,0 +1,90 @@
+#!/usr/bin/env bash
+# Ayudante del laboratorio de la Práctica 5.
+# Uso: ./empresa <orden>
+set -euo pipefail
+cd "$(dirname "$0")"
+
+DB=empresa
+MODULOS="base,contacts,crm,sale_management,stock,purchase,account,hr"
+
+dc() { docker compose "$@"; }
+psql_db() { dc exec -T db psql -U "$(grep ^DB_USER .env | cut -d= -f2)" "$@"; }
+usuario_db() { grep ^DB_USER .env | cut -d= -f2; }
+
+esperar_db() {
+  echo "Esperando a PostgreSQL..."
+  for _ in $(seq 1 60); do
+    if dc exec -T db pg_isready -U "$(usuario_db)" -d postgres >/dev/null 2>&1; then return 0; fi
+    sleep 2
+  done
+  echo "PostgreSQL no responde. Mira: ./empresa logs db" >&2
+  exit 1
+}
+
+existe_db() {
+  dc exec -T db psql -U "$(usuario_db)" -d postgres -tAc \
+    "SELECT 1 FROM pg_database WHERE datname='${DB}'" | grep -q 1
+}
+
+iniciar_db() {
+  # Crea la base vacía y deja que Odoo instale los módulos del curso.
+  echo "Creando la base de datos '${DB}' e instalando módulos (3 a 8 minutos)..."
+  dc exec -T db psql -U "$(usuario_db)" -d postgres -c \
+    "CREATE DATABASE ${DB} OWNER $(usuario_db) ENCODING 'UTF8' TEMPLATE template0" >/dev/null
+  dc run --rm --no-deps odoo odoo -d "${DB}" -i "${MODULOS}" \
+    --without-demo=all --load-language=es_ES --stop-after-init
+  echo "Base '${DB}' lista. Usuario: admin   Contraseña: admin"
+}
+
+urls() {
+  cat <<TXT
+Odoo        http://localhost:8069     (admin / admin)
+Metabase    http://localhost:3000     (se crea la cuenta en el primer acceso)
+Paperless   http://localhost:8000     (admin / la de .env)
+TXT
+}
+
+orden="${1:-ayuda}"
+case "$orden" in
+  up)
+    dc up -d db
+    esperar_db
+    if ! existe_db; then iniciar_db; fi
+    dc up -d
+    echo; urls
+    ;;
+  init)
+    esperar_db
+    if existe_db; then echo "La base '${DB}' ya existe. Usa ./empresa reset para empezar de cero." >&2; exit 1; fi
+    iniciar_db
+    ;;
+  proxy)
+    dc --profile proxy up -d
+    echo "Proxy en marcha: https://odoo.localhost  https://bi.localhost  https://docs.localhost"
+    ;;
+  down)    dc --profile proxy down ;;
+  status)  dc --profile proxy ps ;;
+  logs)    shift; dc logs --tail=100 -f "${@:-odoo}" ;;
+  psql)    dc exec db psql -U "$(usuario_db)" -d "${2:-$DB}" ;;
+  shell)   shift; dc exec "${1:-odoo}" bash ;;
+  urls)    urls ;;
+  reset)
+    read -r -p "Esto borra TODOS los datos del laboratorio. Escribe 'borrar' para continuar: " r
+    if [ "$r" = "borrar" ]; then dc --profile proxy down -v; echo "Laboratorio borrado."; else echo "Cancelado."; fi
+    ;;
+  *)
+    cat <<TXT
+Uso: ./empresa <orden>
+  up       arranca todo (la primera vez crea la base de datos de Odoo)
+  init     crea solo la base de datos de Odoo
+  proxy    arranca también el proxy inverso con HTTPS (ampliación opcional)
+  down     para los contenedores (los datos se conservan)
+  status   estado de los contenedores
+  logs     registros de un servicio, por ejemplo: ./empresa logs paperless
+  psql     consola de PostgreSQL, por ejemplo: ./empresa psql empresa
+  shell    shell en un contenedor, por ejemplo: ./empresa shell odoo
+  urls     direcciones de los servicios
+  reset    borra contenedores y datos para empezar de cero
+TXT
+    ;;
+esac

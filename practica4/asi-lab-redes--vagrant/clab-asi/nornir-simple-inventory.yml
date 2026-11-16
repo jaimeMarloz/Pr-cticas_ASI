@@ -3,32 +3,32 @@ clia:
     username: 
     password: 
     platform: linux
-    hostname: 172.31.255.6
+    hostname: 172.31.255.2
 dmza:
     username: 
     password: 
     platform: linux
-    hostname: 172.31.255.7
+    hostname: 172.31.255.6
 gwa1:
     username: 
     password: 
     platform: linux
-    hostname: 172.31.255.9
+    hostname: 172.31.255.7
 gwa2:
     username: 
     password: 
     platform: linux
-    hostname: 172.31.255.10
+    hostname: 172.31.255.8
 gwb:
     username: 
     password: 
     platform: linux
-    hostname: 172.31.255.2
+    hostname: 172.31.255.9
 hostb:
     username: 
     password: 
     platform: linux
-    hostname: 172.31.255.8
+    hostname: 172.31.255.10
 srva:
     username: 
     password: 

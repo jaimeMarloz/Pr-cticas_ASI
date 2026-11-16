@@ -1,0 +1,4 @@
+name,is_company,customer_rank,email,phone,street,city,zip
+Academia Norte S.L.,1,1,compras@academianorte.example,980000101,Calle Mayor 12,Zamora,49001
+Gestoría Alcázar,1,1,admin@gestoriaalcazar.example,980000202,Avenida de la Plata 3,Benavente,49600
+Colegio San Martín,1,1,secretaria@colegiosanmartin.example,980000303,Plaza del Ayuntamiento 1,Toro,49800

@@ -1,0 +1,3 @@
+name,is_company,supplier_rank,email,phone,street,city,zip
+Papelera del Norte S.A.,1,1,pedidos@papeleranorte.example,910000101,Polígono Industrial 7,Valladolid,47012
+Suministros Técnicos Castilla,1,1,ventas@sumcastilla.example,910000202,Calle del Taller 22,León,24007

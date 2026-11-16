@@ -1,0 +1,23 @@
+# Proxy inverso de la ampliación opcional (HTTPS).
+# Los nombres *.localhost apuntan a tu propio equipo sin tocar /etc/hosts.
+# "tls internal" hace que Caddy firme los certificados con su propia CA local.
+#
+# Completa los tres servicios (puerto interno de cada contenedor):
+#   odoo      -> 8069
+#   metabase  -> 3000
+#   paperless -> 8000
+
+odoo.localhost {
+	tls internal
+	# reverse_proxy <servicio>:<puerto>
+}
+
+bi.localhost {
+	tls internal
+	# reverse_proxy <servicio>:<puerto>
+}
+
+docs.localhost {
+	tls internal
+	# reverse_proxy <servicio>:<puerto>
+}

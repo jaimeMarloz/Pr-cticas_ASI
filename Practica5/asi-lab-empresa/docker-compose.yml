@@ -1,0 +1,96 @@
+# Laboratorio de la Práctica 5: la empresa integrada
+# ERP + CRM + compras e inventario (Odoo), BI (Metabase) y gestión documental (Paperless-ngx)
+name: empresa
+
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  odoo:
+    image: odoo:17.0
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      HOST: db
+      USER: ${DB_USER}
+      PASSWORD: ${DB_PASSWORD}
+    command: ["odoo", "-d", "empresa", "--db-filter=^empresa$"]
+    ports:
+      - "8069:8069"
+    volumes:
+      - odoo-data:/var/lib/odoo
+      - ./config/odoo.conf:/etc/odoo/odoo.conf
+    restart: unless-stopped
+
+  metabase:
+    image: metabase/metabase:latest
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      MB_DB_FILE: /metabase-data/metabase.db
+      JAVA_TIMEZONE: Europe/Madrid
+    ports:
+      - "3000:3000"
+    volumes:
+      - metabase-data:/metabase-data
+    restart: unless-stopped
+
+  redis:
+    image: redis:7
+    restart: unless-stopped
+
+  paperless:
+    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    depends_on:
+      - redis
+    environment:
+      PAPERLESS_REDIS: redis://redis:6379
+      PAPERLESS_ADMIN_USER: admin
+      PAPERLESS_ADMIN_PASSWORD: ${PAPERLESS_ADMIN_PASSWORD}
+      PAPERLESS_SECRET_KEY: ${PAPERLESS_SECRET_KEY}
+      PAPERLESS_URL: ${PAPERLESS_URL}
+      PAPERLESS_OCR_LANGUAGE: spa
+      PAPERLESS_TIME_ZONE: Europe/Madrid
+    ports:
+      - "8000:8000"
+    volumes:
+      - paperless-data:/usr/src/paperless/data
+      - paperless-media:/usr/src/paperless/media
+      - ./export:/usr/src/paperless/export
+      - ./consume:/usr/src/paperless/consume
+    restart: unless-stopped
+
+  # Proxy inverso con HTTPS. No arranca por defecto: es una ampliación opcional, se activa
+  # con el perfil "proxy" (./empresa proxy).
+  caddy:
+    image: caddy:2
+    profiles: ["proxy"]
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./config/Caddyfile:/etc/caddy/Caddyfile
+      - caddy-data:/data
+    restart: unless-stopped
+
+volumes:
+  db-data:
+  odoo-data:
+  metabase-data:
+  paperless-data:
+  paperless-media:
+  caddy-data:

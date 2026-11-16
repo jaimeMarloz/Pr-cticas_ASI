@@ -315,6 +315,55 @@ nexec srva 'ip route replace default via 10.10.0.129'
 nexec dmza 'ip route replace default via 10.10.0.161'
 nexec clia 'udhcpc -i eth1 -q'
 
+step "Convergencia final OSPF y ruta sede B"
+# Reafirma la configuración después de cargar el firewall y arrancar VRRP.
+docker exec "${BASE}-gwa1" vtysh \
+  -c 'configure terminal' \
+  -c 'ip prefix-list SITE-B seq 5 permit 10.20.0.0/26' \
+  -c 'route-map SITE-B permit 10' \
+  -c 'match ip address prefix-list SITE-B' \
+  -c 'ip route 10.20.0.0/26 10.99.0.2' \
+  -c 'router ospf' \
+  -c 'ospf router-id 1.1.1.1' \
+  -c 'network 10.10.0.0/25 area 0' \
+  -c 'network 10.10.0.128/27 area 0' \
+  -c 'network 10.10.0.160/28 area 0' \
+  -c 'redistribute static route-map SITE-B' \
+  -c 'end' -c 'write memory'
+docker exec "${BASE}-gwa2" vtysh \
+  -c 'configure terminal' \
+  -c 'router ospf' \
+  -c 'ospf router-id 2.2.2.2' \
+  -c 'network 10.10.0.0/25 area 0' \
+  -c 'network 10.10.0.128/27 area 0' \
+  -c 'network 10.10.0.160/28 area 0' \
+  -c 'end' -c 'write memory'
+
+ospf_ok=0
+for attempt in $(seq 1 45); do
+  neighbors_a="$(docker exec "${BASE}-gwa1" vtysh -c 'show ip ospf neighbor' 2>/dev/null || true)"
+  neighbors_b="$(docker exec "${BASE}-gwa2" vtysh -c 'show ip ospf neighbor' 2>/dev/null || true)"
+  routes_b="$(docker exec "${BASE}-gwa2" vtysh -c 'show ip route ospf' 2>/dev/null || true)"
+  if grep -q 'Full' <<<"$neighbors_a" &&
+     grep -q 'Full' <<<"$neighbors_b" &&
+     grep -q '10.20.0.0/26' <<<"$routes_b"; then
+    ospf_ok=1
+    break
+  fi
+  sleep 1
+done
+if [[ "$ospf_ok" -ne 1 ]]; then
+  echo "--- Diagnóstico OSPF gwa1 ---"
+  docker exec "${BASE}-gwa1" vtysh -c 'show ip ospf interface' || true
+  docker exec "${BASE}-gwa1" vtysh -c 'show ip ospf neighbor' || true
+  docker exec "${BASE}-gwa1" vtysh -c 'show ip route 10.20.0.0/26' || true
+  echo "--- Diagnóstico OSPF gwa2 ---"
+  docker exec "${BASE}-gwa2" vtysh -c 'show ip ospf interface' || true
+  docker exec "${BASE}-gwa2" vtysh -c 'show ip ospf neighbor' || true
+  docker exec "${BASE}-gwa2" vtysh -c 'show ip route ospf' || true
+  fail "OSPF no convergió o gwa2 no aprendió la ruta de sede B; revisa el diagnóstico anterior."
+fi
+
 step "Pasos 45-51: copia de configuración"
 mkdir -p "$HOME/practica4/evidencias"
 SAVE_DIR="$HOME/practica4/backup-$(date +%F-%H%M%S)"
