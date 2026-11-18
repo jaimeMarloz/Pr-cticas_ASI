@@ -8,12 +8,12 @@ dmza:
     username: 
     password: 
     platform: linux
-    hostname: 172.31.255.6
+    hostname: 172.31.255.7
 gwa1:
     username: 
     password: 
     platform: linux
-    hostname: 172.31.255.7
+    hostname: 172.31.255.3
 gwa2:
     username: 
     password: 
@@ -23,24 +23,24 @@ gwb:
     username: 
     password: 
     platform: linux
-    hostname: 172.31.255.9
+    hostname: 172.31.255.4
 hostb:
     username: 
     password: 
     platform: linux
-    hostname: 172.31.255.10
+    hostname: 172.31.255.9
 srva:
     username: 
     password: 
     platform: linux
-    hostname: 172.31.255.3
+    hostname: 172.31.255.10
 swa:
     username: 
     password: 
     platform: linux
-    hostname: 172.31.255.4
+    hostname: 172.31.255.5
 wan:
     username: 
     password: 
     platform: linux
-    hostname: 172.31.255.5
+    hostname: 172.31.255.6
