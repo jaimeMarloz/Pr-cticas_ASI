@@ -1,0 +1,88 @@
+<mxfile host="app.diagrams.net" agent="Gemini">
+  <diagram id="arquitectura-p5" name="Arquitectura Práctica 5">
+    <mxGraphModel dx="1426" dy="798" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;fontColor=#1a237e;" value="Arquitectura de Sistemas — Distribuciones Duero Norte S.L. (Práctica 5 ASI)" vertex="1">
+          <mxGeometry height="30" width="720" x="220" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="host_box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#f5f5f5;strokeColor=#666666;fontStyle=1;fontSize=13;dashed=1;" value="Anfitrión Windows / Usuario (localhost)" vertex="1">
+          <mxGeometry height="580" width="210" x="30" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="browser" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=12;" value="&lt;b&gt;Navegador Web / Cliente&lt;/b&gt;&lt;br&gt;&lt;br&gt;• ERP/CRM: :8069&lt;br&gt;• BI: :3000&lt;br&gt;• DMS: :8000&lt;br&gt;• API XML-RPC: :8069" vertex="1">
+          <mxGeometry height="140" width="170" x="50" y="220" as="geometry" />
+        </mxCell>
+        <mxCell id="consume_dir" parent="1" style="shape=folder;fontStyle=0;tabWidth=40;tabHeight=14;tabPosition=left;html=1;boundedLbl=1;whiteSpace=wrap;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=11;" value="&lt;b&gt;Carpeta local ./consume&lt;/b&gt;&lt;br&gt;(Bind Mount entrada OCR)" vertex="1">
+          <mxGeometry height="80" width="160" x="55" y="490" as="geometry" />
+        </mxCell>
+        <mxCell id="net_box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#e1f5fe;strokeColor=#0288d1;fontStyle=1;fontSize=13;strokeWidth=2;" value="Red Interna Docker Compose: empresa_default (aislada)" vertex="1">
+          <mxGeometry height="580" width="510" x="310" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="odoo" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" value="&lt;b&gt;Odoo 17 (odoo)&lt;/b&gt;&lt;br&gt;ERP · CRM · SCM · Contabilidad&lt;br&gt;&lt;i&gt;Puerto publicado: 8069:8069&lt;/i&gt;" vertex="1">
+          <mxGeometry height="90" width="210" x="340" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="metabase" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" value="&lt;b&gt;Metabase (metabase)&lt;/b&gt;&lt;br&gt;Business Intelligence / Dashboards&lt;br&gt;&lt;i&gt;Puerto publicado: 3000:3000&lt;/i&gt;" vertex="1">
+          <mxGeometry height="90" width="210" x="340" y="310" as="geometry" />
+        </mxCell>
+        <mxCell id="paperless" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontSize=12;" value="&lt;b&gt;Paperless-ngx (paperless)&lt;/b&gt;&lt;br&gt;Gestor Documental + Motor OCR&lt;br&gt;&lt;i&gt;Puerto publicado: 8000:8000&lt;/i&gt;" vertex="1">
+          <mxGeometry height="90" width="210" x="340" y="480" as="geometry" />
+        </mxCell>
+        <mxCell id="postgres" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#f8cecc;strokeColor=#b85450;fontSize=11;" value="&lt;b&gt;PostgreSQL 15 (db)&lt;/b&gt;&lt;br&gt;BD Relacional: &lt;b&gt;empresa&lt;/b&gt;&lt;br&gt;(res_partner, sale_order, stock_quant...)&lt;br&gt;&lt;i&gt;Puerto interno: 5432 (NO expuesto)&lt;/i&gt;" vertex="1">
+          <mxGeometry height="130" width="190" x="610" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="redis" parent="1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#ffe6cc;strokeColor=#d79b00;fontSize=11;" value="&lt;b&gt;Redis (broker)&lt;/b&gt;&lt;br&gt;Cola de tareas asíncronas OCR&lt;br&gt;&lt;i&gt;Puerto interno: 6379 (NO expuesto)&lt;/i&gt;" vertex="1">
+          <mxGeometry height="80" width="180" x="615" y="485" as="geometry" />
+        </mxCell>
+        <mxCell id="vol_box" parent="1" style="rounded=1;whiteSpace=wrap;html=1;verticalAlign=top;fillColor=#f3e5f5;strokeColor=#7b1fa2;fontStyle=1;fontSize=13;" value="Persistencia (Volúmenes Docker)" vertex="1">
+          <mxGeometry height="580" width="250" x="880" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="vol_odoo" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=12;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" value="&lt;b&gt;Volumen Odoo (filestore)&lt;/b&gt;&lt;br&gt;Adjuntos PDF y sesiones.&lt;br&gt;&lt;font color=&quot;#b71c1c&quot;&gt;Si se borra: enlaces rotos en facturas.&lt;/font&gt;" vertex="1">
+          <mxGeometry height="95" width="200" x="905" y="125" as="geometry" />
+        </mxCell>
+        <mxCell id="vol_pg" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=12;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" value="&lt;b&gt;Volumen PostgreSQL (pgdata)&lt;/b&gt;&lt;br&gt;Tablas ERP, contabilidad, stock, roles.&lt;br&gt;&lt;font color=&quot;#b71c1c&quot;&gt;Si se borra: pérdida total del negocio.&lt;/font&gt;" vertex="1">
+          <mxGeometry height="100" width="200" x="905" y="245" as="geometry" />
+        </mxCell>
+        <mxCell id="vol_mb" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=12;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" value="&lt;b&gt;Volumen Metabase&lt;/b&gt;&lt;br&gt;Preguntas SQL y Cuadro de mando.&lt;br&gt;&lt;font color=&quot;#b71c1c&quot;&gt;Si se borra: se pierden los paneles.&lt;/font&gt;" vertex="1">
+          <mxGeometry height="95" width="200" x="905" y="370" as="geometry" />
+        </mxCell>
+        <mxCell id="vol_ppr" parent="1" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=12;fillColor=#e1d5e7;strokeColor=#9673a6;fontSize=11;" value="&lt;b&gt;Volúmenes Paperless (data/media)&lt;/b&gt;&lt;br&gt;PDF originales, OCR y metadatos.&lt;br&gt;&lt;font color=&quot;#b71c1c&quot;&gt;Si se borra: se pierde el archivo DMS.&lt;/font&gt;" vertex="1">
+          <mxGeometry height="100" width="200" x="905" y="495" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" edge="1" parent="1" source="browser" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.25;exitDx=0;exitDy=0;strokeWidth=2;strokeColor=#1565c0;" target="odoo" value="HTTP :8069">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" edge="1" parent="1" source="browser" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;strokeWidth=2;strokeColor=#1565c0;" target="metabase" value="HTTP :3000">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" edge="1" parent="1" source="browser" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;entryX=0;entryY=0.35;entryDx=0;entryDy=0;exitX=1;exitY=0.75;exitDx=0;exitDy=0;strokeWidth=2;strokeColor=#1565c0;" target="paperless" value="HTTP :8000">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="consume_dir" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;entryX=0;entryY=0.75;entryDx=0;entryDy=0;strokeWidth=1.5;dashed=1;strokeColor=#d6b656;" target="paperless" value="Ingesta PDF">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" edge="1" parent="1" source="odoo" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=classic;endArrow=classic;strokeWidth=2;strokeColor=#2e7d32;" target="postgres" value="R/W (odoo)">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" edge="1" parent="1" source="metabase" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;strokeWidth=2;strokeColor=#ef6c00;" target="postgres" value="RO (metabase_ro)">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="paperless" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=classic;endArrow=classic;strokeWidth=1.5;strokeColor=#d79b00;" target="redis" value="Cola OCR">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="v1" edge="1" parent="1" source="odoo" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;strokeColor=#7b1fa2;" target="vol_odoo">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="v2" edge="1" parent="1" source="postgres" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;strokeColor=#7b1fa2;" target="vol_pg">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="v3" edge="1" parent="1" source="metabase" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;strokeColor=#7b1fa2;" target="vol_mb">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="v4" edge="1" parent="1" source="paperless" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;strokeColor=#7b1fa2;" target="vol_ppr">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
